@@ -1,129 +1,131 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Efecto Matrix Webcam</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #000;
-            color: #0f0;
-            font-family: monospace;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100vh;
-        }
-        
-        #controls {
-            width: 80%;
-            max-width: 800px;
-            margin: 20px;
-            padding: 15px;
-            background-color: rgba(0, 30, 0, 0.8);
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
-        }
-        
-        .canvas-container {
-            position: relative;
-            margin: 20px 0;
-        }
-        
-        canvas {
-            display: block;
-            margin: 0 auto;
-            border: 1px solid #0f0;
-        }
-        
-        #video {
-            display: none;
-        }
-        
-        label {
-            display: inline-block;
-            width: 180px;
-            margin-right: 10px;
-        }
-        
-        input {
-            margin: 10px;
-            background: #001800;
-            color: #0f0;
-            border: 1px solid #0f0;
-            padding: 5px;
-        }
-        
-        button {
-            background: #003000;
-            color: #0f0;
-            border: 1px solid #0f0;
-            padding: 8px 16px;
-            margin: 10px;
-            cursor: pointer;
-            font-family: monospace;
-            transition: all 0.3s;
-        }
-        
-        button:hover {
-            background: #005000;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
-        }
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #000;
+        color: #0f0;
+        font-family: monospace;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100vh;
+      }
+
+      #controls {
+        width: 80%;
+        max-width: 800px;
+        margin: 20px;
+        padding: 15px;
+        background-color: rgba(0, 30, 0, 0.8);
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+      }
+
+      .canvas-container {
+        position: relative;
+        margin: 20px 0;
+      }
+
+      canvas {
+        display: block;
+        margin: 0 auto;
+        border: 1px solid #0f0;
+      }
+
+      #video {
+        display: none;
+      }
+
+      label {
+        display: inline-block;
+        width: 180px;
+        margin-right: 10px;
+      }
+
+      input {
+        margin: 10px;
+        background: #001800;
+        color: #0f0;
+        border: 1px solid #0f0;
+        padding: 5px;
+      }
+
+      button {
+        background: #003000;
+        color: #0f0;
+        border: 1px solid #0f0;
+        padding: 8px 16px;
+        margin: 10px;
+        cursor: pointer;
+        font-family: monospace;
+        transition: all 0.3s;
+      }
+
+      button:hover {
+        background: #005000;
+        box-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Efecto Matrix Webcam</h1>
-    
+
     <div class="canvas-container">
-        <canvas id="canvasOutput"></canvas>
+      <canvas id="canvasOutput"></canvas>
     </div>
-    
+
     <video id="video" autoplay playsinline></video>
-    
+
     <div id="controls">
-        <div>
-            <label for="thresholdValue">Umbral de contraste:</label>
-            <input type="range" id="thresholdValue" min="1" max="200" value="80">
-            <span id="thresholdDisplay">80</span>
-        </div>
-        
-        <div>
-            <label for="rainSpeed">Velocidad de lluvia:</label>
-            <input type="range" id="rainSpeed" min="1" max="20" value="5">
-            <span id="speedDisplay">5</span>
-        </div>
-        
-        <div>
-            <label for="density">Densidad de caracteres:</label>
-            <input type="range" id="density" min="1" max="20" value="8">
-            <span id="densityDisplay">8</span>
-        </div>
-        
-        <div>
-            <button id="startBtn">Iniciar Webcam</button>
-            <button id="captureBtn" disabled>Capturar Imagen</button>
-        </div>
+      <div>
+        <label for="thresholdValue">Umbral de contraste:</label>
+        <input type="range" id="thresholdValue" min="1" max="200" value="80" />
+        <span id="thresholdDisplay">80</span>
+      </div>
+
+      <div>
+        <label for="rainSpeed">Velocidad de lluvia:</label>
+        <input type="range" id="rainSpeed" min="1" max="20" value="5" />
+        <span id="speedDisplay">5</span>
+      </div>
+
+      <div>
+        <label for="density">Densidad de caracteres:</label>
+        <input type="range" id="density" min="1" max="20" value="8" />
+        <span id="densityDisplay">8</span>
+      </div>
+
+      <div>
+        <button id="startBtn">Iniciar Webcam</button>
+        <button id="captureBtn" disabled>Capturar Imagen</button>
+      </div>
     </div>
-    
+
     <script>
+      // Asegurar que el código se ejecute cuando el DOM esté completamente cargado
+      document.addEventListener("DOMContentLoaded", () => {
         // Elementos del DOM
-        const video = document.getElementById('video');
-        const canvasOutput = document.getElementById('canvasOutput');
-        const ctx = canvasOutput.getContext('2d');
-        const startBtn = document.getElementById('startBtn');
-        const captureBtn = document.getElementById('captureBtn');
-        
+        const video = document.getElementById("video");
+        const canvasOutput = document.getElementById("canvasOutput");
+        const ctx = canvasOutput.getContext("2d");
+        const startBtn = document.getElementById("startBtn");
+        const captureBtn = document.getElementById("captureBtn");
+
         // Controles
-        const thresholdSlider = document.getElementById('thresholdValue');
-        const thresholdDisplay = document.getElementById('thresholdDisplay');
-        const rainSpeedSlider = document.getElementById('rainSpeed');
-        const speedDisplay = document.getElementById('speedDisplay');
-        const densitySlider = document.getElementById('density');
-        const densityDisplay = document.getElementById('densityDisplay');
-        
+        const thresholdSlider = document.getElementById("thresholdValue");
+        const thresholdDisplay = document.getElementById("thresholdDisplay");
+        const rainSpeedSlider = document.getElementById("rainSpeed");
+        const speedDisplay = document.getElementById("speedDisplay");
+        const densitySlider = document.getElementById("density");
+        const densityDisplay = document.getElementById("densityDisplay");
+
         // Variables de configuración
         let threshold = parseInt(thresholdSlider.value);
         let rainSpeed = parseInt(rainSpeedSlider.value);
@@ -131,198 +133,223 @@
         let streamActive = false;
         let animationId = null;
         let matrixChars = [];
-        
+
         // Caracteres para la lluvia de Matrix
-        const matrixCharacters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%"\'#&_(),.;:?!\\|{}<>[]^~';
-        
+        const matrixCharacters =
+          "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$+-*/=%\"'#&_(),.;:?!\\|{}<>[]^~";
+
         // Tamaño de los caracteres
         const fontSize = 14;
-        
+
         // Función para iniciar la webcam
-        startBtn.addEventListener('click', () => {
-            if (!streamActive) {
-                startWebcam();
-                startBtn.textContent = 'Detener Webcam';
-            } else {
-                stopWebcam();
-                startBtn.textContent = 'Iniciar Webcam';
-            }
+        startBtn.addEventListener("click", () => {
+          if (!streamActive) {
+            startWebcam();
+            startBtn.textContent = "Detener Webcam";
+          } else {
+            stopWebcam();
+            startBtn.textContent = "Iniciar Webcam";
+          }
         });
-        
+
         // Función para capturar imagen
-        captureBtn.addEventListener('click', () => {
-            // Crear un enlace temporal para descargar la imagen
-            const link = document.createElement('a');
-            link.download = 'matrix-webcam-capture.png';
-            link.href = canvasOutput.toDataURL('image/png');
-            link.click();
+        captureBtn.addEventListener("click", () => {
+          // Crear un enlace temporal para descargar la imagen
+          const link = document.createElement("a");
+          link.download = "matrix-webcam-capture.png";
+          link.href = canvasOutput.toDataURL("image/png");
+          link.click();
         });
-        
+
         // Event listeners para los controles
-        thresholdSlider.addEventListener('input', () => {
-            threshold = parseInt(thresholdSlider.value);
-            thresholdDisplay.textContent = threshold;
+        thresholdSlider.addEventListener("input", () => {
+          threshold = parseInt(thresholdSlider.value);
+          thresholdDisplay.textContent = threshold;
         });
-        
-        rainSpeedSlider.addEventListener('input', () => {
-            rainSpeed = parseInt(rainSpeedSlider.value);
-            speedDisplay.textContent = rainSpeed;
+
+        rainSpeedSlider.addEventListener("input", () => {
+          rainSpeed = parseInt(rainSpeedSlider.value);
+          speedDisplay.textContent = rainSpeed;
         });
-        
-        densitySlider.addEventListener('input', () => {
-            charDensity = parseInt(densitySlider.value);
-            densityDisplay.textContent = charDensity;
+
+        densitySlider.addEventListener("input", () => {
+          charDensity = parseInt(densitySlider.value);
+          densityDisplay.textContent = charDensity;
         });
-        
+
         // Iniciar la webcam
         async function startWebcam() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: {
-                        width: { ideal: 640 },
-                        height: { ideal: 480 }
-                    }
-                });
-                
-                video.srcObject = stream;
-                
-                // Esperar a que el video esté listo
-                video.onloadedmetadata = () => {
-                    // Configurar tamaño del canvas
-                    canvasOutput.width = video.videoWidth;
-                    canvasOutput.height = video.videoHeight;
-                    
-                    // Inicializar las columnas de caracteres Matrix
-                    initMatrixEffect();
-                    
-                    // Iniciar el procesamiento
-                    streamActive = true;
-                    captureBtn.disabled = false;
-                    processVideo();
-                };
-            } catch (error) {
-                console.error('Error al acceder a la webcam:', error);
-                alert('No se pudo acceder a la webcam. Verifica los permisos.');
-            }
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+              video: {
+                width: { ideal: 640 },
+                height: { ideal: 480 },
+              },
+            });
+
+            video.srcObject = stream;
+
+            // Esperar a que el video esté listo
+            video.onloadedmetadata = () => {
+              // Configurar tamaño del canvas
+              canvasOutput.width = video.videoWidth;
+              canvasOutput.height = video.videoHeight;
+
+              // Inicializar las columnas de caracteres Matrix
+              initMatrixEffect();
+
+              // Iniciar el procesamiento
+              streamActive = true;
+              captureBtn.disabled = false;
+              processVideo();
+            };
+          } catch (error) {
+            console.error("Error al acceder a la webcam:", error);
+            alert("No se pudo acceder a la webcam. Verifica los permisos.");
+          }
         }
-        
+
         // Detener la webcam
         function stopWebcam() {
-            if (video.srcObject) {
-                const tracks = video.srcObject.getTracks();
-                tracks.forEach(track => track.stop());
-                video.srcObject = null;
-                
-                cancelAnimationFrame(animationId);
-                ctx.clearRect(0, 0, canvasOutput.width, canvasOutput.height);
-                
-                streamActive = false;
-                captureBtn.disabled = true;
-            }
+          if (video.srcObject) {
+            const tracks = video.srcObject.getTracks();
+            tracks.forEach((track) => track.stop());
+            video.srcObject = null;
+
+            cancelAnimationFrame(animationId);
+            ctx.clearRect(0, 0, canvasOutput.width, canvasOutput.height);
+
+            streamActive = false;
+            captureBtn.disabled = true;
+          }
         }
-        
+
         // Inicializar el efecto Matrix
         function initMatrixEffect() {
-            const charWidth = fontSize;
-            const cols = Math.floor(canvasOutput.width / charWidth);
-            
-            matrixChars = [];
-            
-            for (let i = 0; i < cols; i++) {
-                matrixChars[i] = {
-                    x: i * charWidth,
-                    y: -Math.random() * canvasOutput.height,
-                    speed: Math.random() * 2 + 1,
-                    text: matrixCharacters.charAt(Math.floor(Math.random() * matrixCharacters.length))
-                };
-            }
+          const charWidth = fontSize;
+          const cols = Math.floor(canvasOutput.width / charWidth);
+
+          matrixChars = [];
+
+          for (let i = 0; i < cols; i++) {
+            matrixChars[i] = {
+              x: i * charWidth,
+              y: -Math.random() * canvasOutput.height,
+              speed: Math.random() * 2 + 1,
+              text: matrixCharacters.charAt(
+                Math.floor(Math.random() * matrixCharacters.length)
+              ),
+            };
+          }
         }
-        
+
         // Procesar el video frame por frame
         function processVideo() {
-            if (!streamActive) return;
-            
-            // Dibujar el video en el canvas con efecto umbral
-            ctx.drawImage(video, 0, 0, canvasOutput.width, canvasOutput.height);
-            
-            // Obtener los datos de imagen
-            const imageData = ctx.getImageData(0, 0, canvasOutput.width, canvasOutput.height);
-            const data = imageData.data;
-            
-            // Aplicar umbral para detectar silueta (efecto halftone en modo Matrix)
-            for (let i = 0; i < data.length; i += 4) {
-                // Convertir a escala de grises
-                const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-                
-                // Aplicar umbral
-                if (gray < threshold) {
-                    // Fondo negro para zonas oscuras
-                    data[i] = 0;     // R
-                    data[i + 1] = 0; // G
-                    data[i + 2] = 0; // B
-                    data[i + 3] = 255; // A
-                } else {
-                    // Semi-transparente para la silueta
-                    data[i] = 0;     // R
-                    data[i + 1] = 0; // G
-                    data[i + 2] = 0; // B
-                    data[i + 3] = 0; // Transparente
-                }
+          if (!streamActive) return;
+
+          // Dibujar el video en el canvas con efecto umbral
+          ctx.drawImage(video, 0, 0, canvasOutput.width, canvasOutput.height);
+
+          // Obtener los datos de imagen
+          const imageData = ctx.getImageData(
+            0,
+            0,
+            canvasOutput.width,
+            canvasOutput.height
+          );
+          const data = imageData.data;
+
+          // Aplicar umbral para detectar silueta (efecto halftone en modo Matrix)
+          for (let i = 0; i < data.length; i += 4) {
+            // Convertir a escala de grises
+            const gray =
+              0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+
+            // Aplicar umbral
+            if (gray < threshold) {
+              // Fondo negro para zonas oscuras
+              data[i] = 0; // R
+              data[i + 1] = 0; // G
+              data[i + 2] = 0; // B
+              data[i + 3] = 255; // A
+            } else {
+              // Semi-transparente para la silueta
+              data[i] = 0; // R
+              data[i + 1] = 0; // G
+              data[i + 2] = 0; // B
+              data[i + 3] = 0; // Transparente
             }
-            
-            // Dibujar la imagen con efecto umbral
-            ctx.putImageData(imageData, 0, 0);
-            
-            // Dibujar el efecto de lluvia Matrix
-            drawMatrixRain();
-            
-            // Continuar el procesamiento
-            animationId = requestAnimationFrame(processVideo);
+          }
+
+          // Dibujar la imagen con efecto umbral
+          ctx.putImageData(imageData, 0, 0);
+
+          // Dibujar el efecto de lluvia Matrix
+          drawMatrixRain();
+
+          // Continuar el procesamiento
+          animationId = requestAnimationFrame(processVideo);
         }
-        
+
         // Dibujar la lluvia de caracteres Matrix
         function drawMatrixRain() {
-            // Capa semi-transparente para crear efecto de desvanecimiento
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-            ctx.fillRect(0, 0, canvasOutput.width, canvasOutput.height);
-            
-            // Configurar estilo de texto
-            ctx.font = `${fontSize}px monospace`;
-            
-            // Actualizar y dibujar cada columna de caracteres
-            for (let i = 0; i < matrixChars.length; i++) {
-                // Saltar algunos caracteres según la densidad
-                if (i % (21 - charDensity) !== 0) continue;
-                
-                const char = matrixChars[i];
-                
-                // Caracter brillante para la cabeza de la columna
-                ctx.fillStyle = '#fff';
-                ctx.fillText(char.text, char.x, char.y);
-                
-                // Caracteres verdes para el rastro
-                ctx.fillStyle = '#0f0';
-                for (let j = 1; j < 5; j++) {
-                    const prevChar = matrixCharacters.charAt(Math.floor(Math.random() * matrixCharacters.length));
-                    ctx.fillStyle = `rgba(0, 255, 0, ${1 - j * 0.2})`;
-                    ctx.fillText(prevChar, char.x, char.y - j * fontSize);
-                }
-                
-                // Actualizar posición
-                char.y += rainSpeed;
-                
-                // Cambiar el caracter aleatoriamente
-                if (Math.random() > 0.9) {
-                    char.text = matrixCharacters.charAt(Math.floor(Math.random() * matrixCharacters.length));
-                }
-                
-                // Reiniciar si llega al final
-                if (char.y > canvasOutput.height) {
-                    char.y = -fontSize;
-                    char.speed = Math.random() * 2 + 1;
-                }
+          // Capa semi-transparente para crear efecto de desvanecimiento
+          ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+          ctx.fillRect(0, 0, canvasOutput.width, canvasOutput.height);
+
+          // Configurar estilo de texto
+          ctx.font = `${fontSize}px monospace`;
+
+          // Actualizar y dibujar cada columna de caracteres
+          for (let i = 0; i < matrixChars.length; i++) {
+            // Saltar algunos caracteres según la densidad
+            if (i % (21 - charDensity) !== 0) continue;
+
+            const char = matrixChars[i];
+
+            // Caracter brillante para la cabeza de la columna
+            ctx.fillStyle = "#fff";
+            ctx.fillText(char.text, char.x, char.y);
+
+            // Caracteres verdes para el rastro
+            ctx.fillStyle = "#0f0";
+            for (let j = 1; j < 5; j++) {
+              const prevChar = matrixCharacters.charAt(
+                Math.floor(Math.random() * matrixCharacters.length)
+              );
+              ctx.fillStyle = `rgba(0, 255, 0, ${1 - j * 0.2})`;
+              ctx.fillText(prevChar, char.x, char.y - j * fontSize);
             }
+
+            // Actualizar posición
+            char.y += rainSpeed;
+
+            // Cambiar el caracter aleatoriamente
+            if (Math.random() > 0.9) {
+              char.text = matrixCharacters.charAt(
+                Math.floor(Math.random() * matrixCharacters.length)
+              );
+            }
+
+            // Reiniciar si llega al final
+            if (char.y > canvasOutput.height) {
+              char.y = -fontSize;
+              char.speed = Math.random() * 2 + 1;
+            }
+          }
         }
+
+        // Inicializar valores de display
+        thresholdDisplay.textContent = thresholdSlider.value;
+        speedDisplay.textContent = rainSpeedSlider.value;
+        densityDisplay.textContent = densitySlider.value;
+
+        // Configuración inicial del canvas
+        canvasOutput.width = 640; // Tamaño inicial
+        canvasOutput.height = 480;
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0, 0, canvasOutput.width, canvasOutput.height);
+      });
     </script>
-</body>
+  </body>
 </html>
